@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>注册</title>
+<script src="../../webapp/js/vue.min.js" th:src="@{/js/vue.min.js}"></script>
+<script src="../../webapp/js/jquery.min.js" th:src="@{/js/jquery.min.js}"></script>
+	<script src="../../webapp/js/axios.min.js" th:src="@{/js/axios.min.js}"></script>
+<style>
+	table, tr{
+		line-height: 30px;
+	}
+	input{
+		line-height: 30px;
+		width: 98%;
+		font-size: 16px;
+	}
+	input[type="button"]{
+		width: 100%;
+		height: 30px;
+	}
+	select{
+		width: 100%;
+		height: 30px;
+		font-size: 16px;
+	}
+	table tr td:first-child{
+		font-weight: bold;
+	}
+</style>
+</head>
+<body>
+<div id="app">
+	<form action="addUser" method="post">
+		<h1 align="center">注册</h1>
+		<table align="center" border="1" cellSpacing="0" width="500px" id="app1">
+			<tr>
+				<td width="100px">用户名：</td>
+				<td><input type="text" v-model="user.name" value="" placeholder="由4-12个字母、数字、下划线组成"/></td>
+			</tr>
+			<tr>
+				<td>密码：</td>
+				<td><input type="password" v-model="user.password" value="" placeholder="密码至少6位"/></td>
+			</tr>
+			<tr>
+				<td>重复密码：</td>
+				<td><input type="password" v-model="password1" value="" placeholder="请重复密码"/></td>
+			</tr>
+			<tr>
+				<td>账号类型：</td>
+				<td>
+					<label>
+						<select v-model="select">
+							<option value="student">学生</option>
+							<option value="teacher">老师</option>
+							<option value="admin">管理员</option>
+						</select>
+					</label>
+				</td>
+			</tr>
+			<tr class="authCode" v-if="show">
+				<td>注册码：</td>
+				<td><input type="text" v-model="authCode" value="" placeholder="请输入注册码"/></td>
+			</tr>
+			<tr align="center"><td colspan="2">
+				<input type="button" value="注 册" @click="check" />
+			</td></tr>
+		</table>
+	</form>
+</div>
+<script type="text/javascript">
+	let data4Vue = {
+		user: {name: "", password: "", actor: "student", createDate: ""},
+		select: "student",
+		password1: "",
+		authCode: "",
+		show: false,
+	};
+	let vue = new Vue({
+		el:'#app',
+		data: data4Vue,
+		methods:{
+			check:function(){
+				if(this.user.name===""||this.user.password===""||this.password1===""){
+					alert("账号密码不能为空");
+				}
+				else if(this.user.name.length<4||this.user.name.length>12){
+					alert("用户名长度不合规定");
+				}
+				else if(this.user.password.length<6||this.password1.length<6){
+					alert("密码长度不合规定");
+				}
+				else if(this.user.password !== this.password1){
+					alert("两次密码不一致");
+				}
+				else if(this.select !== "student" && this.authCode === ""){
+					alert("请输入注册码");
+				}
+				else{
+					this.add();
+				}
+			},
+			add:function (){
+				if(this.select === "student")
+					this.authCode = "null";
+				let url = "users/" + this.authCode;
+				axios.post(url, this.user).then(function (res){
+					if(res.data === "success") {
+						alert("注册成功，点击确认进入登录页面");
+						location.href = "admin_login";
+					}
+					else if(res.data === "exist") alert("账户已存在");
+					else if(res.data === "errorCode") alert("注册码错误");
+				});
+			}
+		},
+		watch:{
+			select:function(){
+				this.user.actor = this.select;
+				this.show = this.select !== "student";
+			}
+		}
+	});
+
+</script>
+</body>
+</html>

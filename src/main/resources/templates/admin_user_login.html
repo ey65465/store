@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>登录</title>
+
+	<script src="../../webapp/js/vue.min.js" th:src="@{/js/vue.min.js}"></script>
+	<script src="../../webapp/js/jquery.min.js" th:src="@{/js/jquery.min.js}"></script>
+	<script src="../../webapp/js/axios.min.js" th:src="@{/js/axios.min.js}"></script>
+<style>
+	table, tr{
+		line-height: 30px;
+	}
+	input{
+		line-height: 30px;
+		width: 98%;
+		font-size: 16px;
+	}
+	input[type="button"]{
+		width: 100%;
+		height: 30px;
+	}
+	select{
+		width: 100%;
+		height: 30px;
+		font-size: 16px;
+	}
+	table tr td:first-child{
+		font-weight: bold;
+	}
+</style>
+</head>
+<body>
+<div id="app">
+	<form>
+		<h1 align="center">登录</h1>
+		<table align="center" border="1" cellSpacing="0" width="500px" id="app1">
+			<tr>
+				<td width="100px">用户名：</td>
+				<td><input type="text" v-model="user.name" value="" placeholder="请输入用户名"/></td>
+			</tr>
+			<tr>
+				<td>密码：</td>
+				<td><input type="password" v-model="user.password" value="" placeholder="请输入密码"/></td>
+			</tr>
+			<tr align="center">
+				<td colspan="2">
+					<input type="button" value="登 录" @click="check" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+<script type="text/javascript">
+	let data4Vue = {
+		user: {name: "", password: ""},
+	};
+	let vue = new Vue({
+		el:'#app',
+		data: data4Vue,
+		methods:{
+			check:function(){
+				if(this.user.name===""||this.user.password===""){
+					alert("账号密码不能为空");
+				}
+				else{
+					this.login();
+				}
+			},
+			login:function (){
+				let url = "users";
+				axios.post(url, this.user).then(function (res){
+					if(res.data === "notExist") alert("账户不存在");
+					else if(res.data === "errorPassword") alert("密码错误");
+					else if(res.data === "lowActor") alert("账户无权限");
+					else{
+						location.href="admin_user_list";
+					}
+				});
+			}
+		},
+	});
+
+</script>
+</body>
+</html>
