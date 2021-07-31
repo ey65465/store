@@ -21,7 +21,7 @@ public class CityController {
         ModelAndView mav = new ModelAndView("admin_city_list");
         return mav;
     }
-    @RequestMapping(value = "/editCity", method = RequestMethod.GET)
+    @RequestMapping(value = "/admin_city_edit", method = RequestMethod.GET)
     public ModelAndView editCity(){
         ModelAndView mav = new ModelAndView("admin_city_edit");
         return mav;
@@ -51,13 +51,11 @@ public class CityController {
     }
     @DeleteMapping("/cities/{id}")
     public String delete(City city){
-        System.out.println(city.getId());
         cityService.delete(city.getId());
         return "success";
     }
     @GetMapping("/cities/{id}")
     public City get(@PathVariable("id") int id){
-        System.out.println(id);
         City c = cityService.get(id);
         return c;
     }
@@ -66,5 +64,4 @@ public class CityController {
         cityService.update(city);
         return "success";
     }
-  
 }

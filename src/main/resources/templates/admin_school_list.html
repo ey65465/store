@@ -16,6 +16,37 @@
     table{
         min-width: 700px;
     }
+    a#jumpNum{
+        display: inline-block;
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+    table#admin_school_add{
+        margin-top: 40px;
+    }
+    table tr{
+        line-height: 30px;
+    }
+    table tr td{
+        padding-left: 5px;
+    }
+    input{
+        height: 30px;
+        padding-left: 5px;
+        font-size: 16px;
+    }
+    select{
+        height: 30px;
+        width: 99.2%;
+        font-size: 16px;
+    }
+    a.disableHref{
+        cursor: default;
+        color: gray;
+    }
+    a.disableHref:hover{
+        color: gray;
+    }
 </style>
 <body>
 <div id="app">
@@ -48,27 +79,57 @@
                     <a href="#" :class="{disableHref:pagination.pageNum==pagination.firstPage}" @click="jump('first')">[ 首 页 ]</a>
                     <a href="#" :class="{disableHref:!pagination.hasPreviousPage}" @click="jump('pre')">[ 上一页 ]</a>
                     [
-                    <a href="#" :class="{disableHref:pagination.pageNum==i}" v-for="i in pagination.navigatepageNums" @click="jumpByNumber(i)">{{i}}</a>
+                    <a id="jumpNum" href="#" :class="{disableHref:pagination.pageNum==i}" v-for="i in pagination.navigatepageNums" @click="jumpByNumber(i)">{{i}}</a>
                     ]
                     <a href="#" :class="{disableHref:!pagination.hasNextPage}" @click="jump('next')">[ 下一页 ]</a>
                     <a href="#" :class="{disableHref:pagination.pageNum==pagination.lastPage}" @click="jump('last')">[ 末 页 ]</a>
                 </td>
             </tr>
         </table>
+
+        <table align="center" border="1px" width="60%" id="admin_school_add">
+            <tr><td colspan="2"><strong>添加学校</strong></td></tr>
+            <tr>
+                <td>所属城市：</td>
+                <td>
+                    <select v-model="school4Add.city.id">
+                        <option v-for="c in cities" :value="c.id">{{c.name}}</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>学校名：</td>
+                <td><input type="text" v-model="school4Add.name" style="width: 97%;"/></td>
+            </tr>
+            <tr>
+                <td>地址：</td>
+                <td><input type="text" v-model="school4Add.address" style="width: 97%;"/></td>
+            </tr>
+            <tr>
+                <td>开业时间：</td>
+                <td><input type="date" v-model="school4Add.openDate" style="width: 97%;"/></td>
+            </tr>
+            <tr>
+                <td colspan="2"><input type="button" value="添 加" style="width: 99.5%;" @click="addSchool"/></td>
+            </tr>
+        </table>
+
     </div>
 </div>
 </body>
 <script>
     let data4Vue = {
         schools: [],
+        cities: [],
         pagination: {},
-        school4Add: {id: 0, name: "", address: "", city: "", openDate: ""},
+        school4Add: {id: 0, name: "", address: "", city: {id: 0, name: "", code: ""}, openDate: ""},
     };
     let vue = new Vue({
         el: "#app",
         data: data4Vue,
         mounted:function (){
             this.listSchool(1);
+            this.listCity();
         },
         methods:{
             listSchool:function (start){
@@ -76,6 +137,12 @@
                 axios.get(url).then(res => {
                     vue.schools = res.data.list;
                     vue.pagination = res.data;
+                });
+            },
+            listCity:function (){
+                let url = "cities/all";
+                axios.get(url).then(res =>{
+                    vue.cities = res.data;
                 });
             },
             jump:function (page){
@@ -86,6 +153,23 @@
             },
             jumpByNumber:function (start){
                 this.listSchool(start);
+            },
+            addSchool: function (){
+                if(this.school4Add.name === "" || this.school4Add.address === "" || this.school4Add.openDate === "")
+                    alert("学校信息不完整");
+                else{
+                    let url = "schools";
+                    axios.post(url, this.school4Add).then(function (res){
+                        if(res.data === "exist") alert("学校已存在");
+                        else if(res.data === "success") {
+                            vue.listSchool(vue.pagination.pageNum);
+                            alert("添加成功");
+                        }
+                        else{
+                            alert("添加失败，请重试");
+                        }
+                    });
+                }
             },
         },
     });

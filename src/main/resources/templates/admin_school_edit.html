@@ -6,31 +6,32 @@
     <script src="../../webapp/js/axios.min.js" th:src="@{/js/axios.min.js}"></script>
     <script src="../../webapp/js/jquery.min.js" th:src="@{/js/jquery.min.js}"></script>
     <script src="../../webapp/js/vue.min.js" th:src="@{/js/vue.min.js}"></script>
-    <title>编辑城市</title>
+    <title>编辑产品</title>
 </head>
 <style>
     #app{
-        margin-top: 50px;
+        margin-top: 100px;
+        min-width: 700px;
     }
-    table tr{
+    .disableHref{
+        cursor:default;
+        color: black;
+        text-decoration:none;
+    }
+    table tr td{
         line-height: 30px;
-    }
-    table tr td:first-child{
         padding-left: 5px;
     }
     input{
-        width: 97.5%;
         height: 30px;
-        font-size: 16px;
+        width: 99%;
         padding-left: 5px;
-    }
-    input[value="取 消"]{
-        margin-left: -2px;
+        font-size: 16px;
     }
     select{
-        width: 100%;
         height: 30px;
         font-size: 16px;
+        width: 99%;
     }
 </style>
 <script>
@@ -43,19 +44,31 @@
 </script>
 <body>
 <div id="app">
-    <table id="cityTable" border="1px" align="center" width="60%">
-        <tr><td colspan="4"><strong>更新城市</strong></td></tr>
+    <table id="schoolTable" border="1px" align="center" width="60%">
+        <tr><td colspan="4"><strong>更新学校</strong></td></tr>
         <tr>
             <td>编号：</td>
-            <td>{{city4update.id}}</td>
+            <td>{{school4update.id}}</td>
         </tr>
         <tr>
-            <td>城市名：</td>
-            <td><input type="text" v-model="city4update.name"/></td>
+            <td>所属城市：</td>
+            <td>
+                <select v-model="school4update.city.id">
+                    <option v-for="c in cities" :value="c.id">{{c.name}}</option>
+                </select>
+            </td>
         </tr>
         <tr>
-            <td>密码：</td>
-            <td><input type="text" v-model="city4update.code"/></td>
+            <td>校区名：</td>
+            <td><input type="text" v-model="school4update.name" style="width: 97%;"/></td>
+        </tr>
+        <tr>
+            <td>地址：</td>
+            <td><input type="text" v-model="school4update.address" style="width: 97%;"/></td>
+        </tr>
+        <tr>
+            <td>开业事件：</td>
+            <td>{{school4update.openDate}}</td>
         </tr>
         <tr>
             <td><input type="button" value="取 消" style="width: 100%;" @click="cancel"/></td>
@@ -74,35 +87,43 @@
         return null;
     }
     let data4Vue = {
-        city4update: {id: 0, name: "", code: ""},
+        cities: [],
+        school4update: {id: 0, name: "", address: "", city:{id: 0, name: "", code: ""}, openDate: ""},
     };
     let vue = new Vue({
         el: "#app",
         data: data4Vue,
         mounted: function (){//mounted　表示这个 Vue 对象加载成功了
             this.get();
+            this.listCities();
         },
         methods:{
             get:function (){
                 let id = getUrlParms("id");
-                let url = "cities/" + id;
+                let url = "schools/" + id;
                 axios.get(url).then(function (res){
-                    vue.city4update = res.data;
-                })
+                    vue.school4update = res.data;
+                });
+            },
+            listCities:function (){
+                let url = "cities/all";
+                axios.get(url).then(function (res){
+                    vue.cities = res.data;
+                });
             },
             update:function (){
-                if(this.city4update.name === "" || this.city4update.code === "")
-                    alert("城市名和代码不能为空");
+                if(this.school4update.name === "" || this.school4update.address === "")
+                    alert("学校信息不完整");
                 else{
                     let id = getUrlParms("id");
-                    let url = "cities/" + id;
-                    axios.post(url, this.city4update).then(function (res){
-                        location.href = "admin_city_list";
+                    let url = "schools/" + id;
+                    axios.post(url, this.school4update).then(function (res){
+                        location.href = "admin_school_list";
                     });
                 }
             },
             cancel:function (){
-                location.href = "admin_city_list";
+                location.href = "admin_school_list";
             }
         },
     })

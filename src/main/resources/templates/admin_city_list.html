@@ -42,6 +42,11 @@
     input[type="button"]{
         width: 99.5%;
     }
+    a#jumpNum{
+        display: inline-block;
+        margin-left: 5px;
+        margin-right: 5px;
+    }
 </style>
 <body>
 <div id="app">
@@ -70,7 +75,7 @@
                     <a href="#" :class="{disableHref:pagination.pageNum==pagination.firstPage}" @click="jump('first')">[ 首 页 ]</a>
                     <a href="#" :class="{disableHref:!pagination.hasPreviousPage}" @click="jump('pre')">[ 上一页 ]</a>
                     [
-                    <a href="#" :class="{disableHref:pagination.pageNum==i}" v-for="i in pagination.navigatepageNums" @click="jumpByNumber(i)">{{i}}</a>
+                    <a href="#" :class="{disableHref:pagination.pageNum==i}" v-for="i in pagination.navigatepageNums" @click="jumpByNumber(i)" id="jumpNum">{{i}}</a>
                     ]
                     <a href="#" :class="{disableHref:!pagination.hasNextPage}" @click="jump('next')">[ 下一页 ]</a>
                     <a href="#" :class="{disableHref:pagination.pageNum==pagination.lastPage}" @click="jump('last')">[ 末 页 ]</a>

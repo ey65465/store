@@ -2,13 +2,11 @@ package com.myapp1.store.web;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.myapp1.store.pojo.City;
 import com.myapp1.store.pojo.School;
 import com.myapp1.store.service.SchoolService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
@@ -23,6 +21,11 @@ public class SchoolController {
         ModelAndView mav = new ModelAndView("admin_school_list");
         return mav;
     }
+    @RequestMapping(value = "/admin_school_edit", method = RequestMethod.GET)
+    public ModelAndView editCity(){
+        ModelAndView mav = new ModelAndView("admin_school_edit");
+        return mav;
+    }
 
     // restful
     @GetMapping("/schools")
@@ -32,5 +35,24 @@ public class SchoolController {
         List<School> ss = schoolService.list();
         PageInfo<School> page = new PageInfo<>(ss, 5);
         return page;
+    }
+    @PostMapping("/schools")
+    public String add(@RequestBody School school){
+        School s = schoolService.getByName(school.getName());
+        if(null != s) return "exist";
+        else{
+            schoolService.add(school);
+            return "success";
+        }
+    }
+    @GetMapping("/schools/{id}")
+    public School get(@PathVariable("id") int id){
+        School s = schoolService.getById(id);
+        return s;
+    }
+    @PostMapping("/schools/{id}")
+    public String update(@RequestBody School school){
+        schoolService.update(school);
+        return "success";
     }
 }
