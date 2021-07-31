@@ -17,4 +17,6 @@ public interface UserService {
     List<User> list();
 
     User getByName(String name);
+
+    List<User> listByActor(String actor);
 }

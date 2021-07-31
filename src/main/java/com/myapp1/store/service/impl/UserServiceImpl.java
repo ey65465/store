@@ -40,4 +40,9 @@ public class UserServiceImpl implements UserService {
     public User getByName(String name) {
         return userMapper.getByName(name);
     }
+
+    @Override
+    public List<User> listByActor(String actor) {
+        return userMapper.listByActor(actor);
+    }
 }

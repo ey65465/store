@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>学校列表</title>
+    <script src="../../webapp/js/vue.min.js" th:src="@{/js/vue.min.js}"></script>
+    <script src="../../webapp/js/jquery.min.js" th:src="@{/js/jquery.min.js}"></script>
+    <script src="../../webapp/js/axios.min.js" th:src="@{/js/axios.min.js}"></script>
+</head>
+<style>
+    #app{
+        margin: 20px auto;
+        width: 100%;
+    }
+    table{
+        min-width: 700px;
+    }
+</style>
+<body>
+<div id="app">
+    <div th:replace="admin_top_nav::admin_top_nav"></div>
+    <div id="admin_school_list">
+        <table align="center" border="1px" width="60%">
+            <tr>
+                <td colspan="7"><strong>学校列表</strong></td>
+            </tr>
+            <tr>
+                <td>编号</td>
+                <td>校区名</td>
+                <td>地址</td>
+                <td>区域</td>
+                <td>开业日期</td>
+                <td>编辑</td>
+                <td>删除</td>
+            </tr>
+            <tr v-for="s in schools">
+                <td>{{s.id}}</td>
+                <td>{{s.name}}</td>
+                <td>{{s.address}}</td>
+                <td>{{s.city.name}}</td>
+                <td>{{s.openDate}}</td>
+                <td><a :href="'admin_school_edit?id=' + s.id">编辑</a></td>
+                <td><a href="#">删除</a></td>
+            </tr>
+            <tr align="center">
+                <td colspan="7">
+                    <a href="#" :class="{disableHref:pagination.pageNum==pagination.firstPage}" @click="jump('first')">[ 首 页 ]</a>
+                    <a href="#" :class="{disableHref:!pagination.hasPreviousPage}" @click="jump('pre')">[ 上一页 ]</a>
+                    [
+                    <a href="#" :class="{disableHref:pagination.pageNum==i}" v-for="i in pagination.navigatepageNums" @click="jumpByNumber(i)">{{i}}</a>
+                    ]
+                    <a href="#" :class="{disableHref:!pagination.hasNextPage}" @click="jump('next')">[ 下一页 ]</a>
+                    <a href="#" :class="{disableHref:pagination.pageNum==pagination.lastPage}" @click="jump('last')">[ 末 页 ]</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+<script>
+    let data4Vue = {
+        schools: [],
+        pagination: {},
+        school4Add: {id: 0, name: "", address: "", city: "", openDate: ""},
+    };
+    let vue = new Vue({
+        el: "#app",
+        data: data4Vue,
+        mounted:function (){
+            this.listSchool(1);
+        },
+        methods:{
+            listSchool:function (start){
+                let url = "schools?start=" + start;
+                axios.get(url).then(res => {
+                    vue.schools = res.data.list;
+                    vue.pagination = res.data;
+                });
+            },
+            jump:function (page){
+                if("first" === page && 1 != vue.pagination.pageNum) this.listSchool(1);
+                else if("pre" === page && vue.pagination.hasPreviousPage) this.listSchool(vue.pagination.prePage);
+                else if("next" === page && vue.pagination.hasNextPage) this.listSchool(vue.pagination.nextPage);
+                else if("last" === page && vue.pagination.pageNum != vue.pagination.pages) this.listSchool(vue.pagination.pages);
+            },
+            jumpByNumber:function (start){
+                this.listSchool(start);
+            },
+        },
+    });
+</script>
+</html>

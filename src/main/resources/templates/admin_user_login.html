@@ -14,8 +14,9 @@
 	}
 	input{
 		line-height: 30px;
-		width: 98%;
+		width: 97%;
 		font-size: 16px;
+		padding-left: 5px;
 	}
 	input[type="button"]{
 		width: 100%;
@@ -59,6 +60,10 @@
 	let vue = new Vue({
 		el:'#app',
 		data: data4Vue,
+		mounted:function (){
+			let errorMsg = sessionStorage.getItem("error");
+			console.log(errorMsg);
+		},
 		methods:{
 			check:function(){
 				if(this.user.name===""||this.user.password===""){
@@ -81,7 +86,6 @@
 			}
 		},
 	});
-
 </script>
 </body>
 </html>

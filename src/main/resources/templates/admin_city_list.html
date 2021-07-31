@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>城市列表</title>
+    <script src="../../webapp/js/vue.min.js" th:src="@{/js/vue.min.js}"></script>
+    <script src="../../webapp/js/jquery.min.js" th:src="@{/js/jquery.min.js}"></script>
+    <script src="../../webapp/js/axios.min.js" th:src="@{/js/axios.min.js}"></script>
+</head>
+<style>
+    #app{
+        margin: 20px auto;
+        width: 100%;
+    }
+    table{
+        min-width: 700px;
+    }
+    table tr td{
+        line-height: 30px;
+        padding-left: 3px;
+    }
+    a.disableHref{
+        cursor: default;
+        color: gray;
+    }
+    a.disableHref:hover{
+        color: gray;
+    }
+    a:hover{
+        color: cadetblue;
+    }
+    table#admin_city_add{
+        margin-top: 40px;
+    }
+    input{
+        width: 97.5%;
+        height: 30px;
+        font-size: 16px;
+        padding-left: 5px;
+    }
+    input[type="button"]{
+        width: 99.5%;
+    }
+</style>
+<body>
+<div id="app">
+    <div th:replace="admin_top_nav::admin_top_nav"></div>
+    <div id="admin_city_list">
+        <table align="center" border="1px" width="60%">
+            <tr>
+                <td colspan="7"><strong>城市列表</strong></td>
+            </tr>
+            <tr>
+                <td>编号</td>
+                <td>城市名</td>
+                <td>城市代码</td>
+                <td>编辑</td>
+                <td>删除</td>
+            </tr>
+            <tr v-for="s in cities">
+                <td>{{s.id}}</td>
+                <td>{{s.name}}</td>
+                <td>{{s.code}}</td>
+                <td><a :href="'admin_city_edit?id=' + s.id">编辑</a></td>
+                <td><a href="#" @click="deleteCity(s.id)">删除</a></td>
+            </tr>
+            <tr align="center">
+                <td colspan="7">
+                    <a href="#" :class="{disableHref:pagination.pageNum==pagination.firstPage}" @click="jump('first')">[ 首 页 ]</a>
+                    <a href="#" :class="{disableHref:!pagination.hasPreviousPage}" @click="jump('pre')">[ 上一页 ]</a>
+                    [
+                    <a href="#" :class="{disableHref:pagination.pageNum==i}" v-for="i in pagination.navigatepageNums" @click="jumpByNumber(i)">{{i}}</a>
+                    ]
+                    <a href="#" :class="{disableHref:!pagination.hasNextPage}" @click="jump('next')">[ 下一页 ]</a>
+                    <a href="#" :class="{disableHref:pagination.pageNum==pagination.lastPage}" @click="jump('last')">[ 末 页 ]</a>
+                </td>
+            </tr>
+        </table>
+
+        <table  align="center" border="1px" width="60%" id="admin_city_add">
+            <tr>
+                <td colspan="2"><strong>添加城市</strong></td>
+            </tr>
+            <tr>
+                <td>城市名：</td>
+                <td><input type="text" v-model="city4Add.name" placeholder="城市名"/></td>
+            </tr>
+            <tr>
+                <td>城市代码：</td>
+                <td><input type="text" v-model="city4Add.code" placeholder="城市代码（由大写的拼音首字母组成）"/></td>
+            </tr>
+            <tr><td colspan="2"><input type="button" value="添 加" @click="addCity"/></td></tr>
+        </table>
+
+    </div>
+</div>
+</body>
+<script>
+    let data4Vue = {
+        cities: [],
+        pagination: {},
+        city4Add: {id: 0, name: "", code: ""},
+    };
+    let vue = new Vue({
+        el: "#app",
+        data: data4Vue,
+        mounted:function (){
+            this.listCity(1);
+        },
+        methods:{
+            listCity:function (start){
+                let url = "cities?start=" + start;
+                axios.get(url).then(res => {
+                    vue.cities = res.data.list;
+                    vue.pagination = res.data;
+                });
+            },
+            jump:function (page){
+                if("first" === page && 1 != vue.pagination.pageNum) this.listCity(1);
+                else if("pre" === page && vue.pagination.hasPreviousPage) this.listCity(vue.pagination.prePage);
+                else if("next" === page && vue.pagination.hasNextPage) this.listCity(vue.pagination.nextPage);
+                else if("last" === page && vue.pagination.pageNum != vue.pagination.pages) this.listCity(vue.pagination.pages);
+            },
+            jumpByNumber:function (start){
+                this.listCity(start);
+            },
+            addCity: function (){
+                if(this.city4Add.name === "" || this.city4Add.code === "")
+                    alert("城市名和代码不能为空");
+                else{
+                    let url = "cities";
+                    axios.post(url, this.city4Add).then(function (res){
+                        if(res.data === "exist") alert("城市名已存在");
+                        else if(res.data === "success") {
+                            vue.listCity(vue.pagination.pageNum);
+                            alert("添加成功");
+                        }
+                        else{
+                            alert("添加失败，请重试");
+                        }
+                    });
+                }
+            },
+            deleteCity:function (id){
+                let url = "cities/" + id;
+                axios.delete(url).then(function (res){
+                    vue.listCity(vue.pagination.pageNum);
+                    alert("删除成功");
+                });
+            },
+        },
+    });
+</script>
+</html>

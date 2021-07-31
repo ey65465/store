@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="../../webapp/js/axios.min.js" th:src="@{/js/axios.min.js}"></script>
+    <script src="../../webapp/js/jquery.min.js" th:src="@{/js/jquery.min.js}"></script>
+    <script src="../../webapp/js/vue.min.js" th:src="@{/js/vue.min.js}"></script>
+    <title>编辑城市</title>
+</head>
+<style>
+    #app{
+        margin-top: 50px;
+    }
+    table tr{
+        line-height: 30px;
+    }
+    table tr td:first-child{
+        padding-left: 5px;
+    }
+    input{
+        width: 97.5%;
+        height: 30px;
+        font-size: 16px;
+        padding-left: 5px;
+    }
+    input[value="取 消"]{
+        margin-left: -2px;
+    }
+    select{
+        width: 100%;
+        height: 30px;
+        font-size: 16px;
+    }
+</style>
+<script>
+    $(function(){
+        $("a.disableHref").click(function(event){
+            return false;
+//                event.preventDefault();
+        });
+    });
+</script>
+<body>
+<div id="app">
+    <table id="cityTable" border="1px" align="center" width="60%">
+        <tr><td colspan="4"><strong>更新城市</strong></td></tr>
+        <tr>
+            <td>编号：</td>
+            <td>{{city4update.id}}</td>
+        </tr>
+        <tr>
+            <td>城市名：</td>
+            <td><input type="text" v-model="city4update.name"/></td>
+        </tr>
+        <tr>
+            <td>密码：</td>
+            <td><input type="text" v-model="city4update.code"/></td>
+        </tr>
+        <tr>
+            <td><input type="button" value="取 消" style="width: 100%;" @click="cancel"/></td>
+            <td><input type="button" value="更 新" style="width: 100%;" @click="update"/></td>
+        </tr>
+    </table>
+</div>
+</body>
+<script type="text/javascript">
+    //获取地址栏参数的函数
+    function getUrlParms(name){
+        let reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+        let r = window.location.search.substr(1).match(reg);
+        if(r!=null)
+            return unescape(r[2]);
+        return null;
+    }
+    let data4Vue = {
+        city4update: {id: 0, name: "", code: ""},
+    };
+    let vue = new Vue({
+        el: "#app",
+        data: data4Vue,
+        mounted: function (){//mounted　表示这个 Vue 对象加载成功了
+            this.get();
+        },
+        methods:{
+            get:function (){
+                let id = getUrlParms("id");
+                let url = "cities/" + id;
+                axios.get(url).then(function (res){
+                    vue.city4update = res.data;
+                })
+            },
+            update:function (){
+                if(this.city4update.name === "" || this.city4update.code === "")
+                    alert("城市名和代码不能为空");
+                else{
+                    let id = getUrlParms("id");
+                    let url = "cities/update/" + id;
+                    axios.post(url, this.city4update).then(function (res){
+                        location.href = "admin_city_list";
+                    });
+                }
+            },
+            cancel:function (){
+                location.href = "admin_city_list";
+            }
+        },
+    })
+</script>
+</html>

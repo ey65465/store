@@ -11,7 +11,7 @@ public interface UserMapper {
     void add(User user);
     @Delete("delete from user where id=#{id}")
     void delete(int id);
-    @Update("update user set name=#{name}, password=#{password}, auth=#{auth} where id=#{id}")
+    @Update("update user set name=#{name}, password=#{password}, actor=#{actor} where id=#{id}")
     void update(User user);
     @Select("select * from user where id=#{id}")
     User getById(int id);
@@ -19,4 +19,6 @@ public interface UserMapper {
     List<User> list();
     @Select("select * from user where name=#{name}")
     User getByName(String name);
+    @Select("select * from user where actor=#{actor}")
+    List<User> listByActor(String actor);
 }
